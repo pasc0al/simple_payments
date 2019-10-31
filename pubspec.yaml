@@ -1,8 +1,8 @@
 name: simple_payments
 description: The plugin that will make your payments easy again.
 version: 0.0.1
-author: Pascoal Bernardo
-homepage:
+author: Pascoal Bernardo <pascoal.bd@gmail.com>
+homepage: https://github.com/pasc0al/simple_payments
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
