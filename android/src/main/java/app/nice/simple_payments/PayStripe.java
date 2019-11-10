@@ -62,7 +62,7 @@ public class PayStripe extends AppCompatActivity {
         progressDialog = dialogProgress(this,"Starting payment...", "Pay", false);
         progressDialog.show();
         Card card = mCardInputWidget.getCard();
-        if (card != null && map.get("url") != null && map.get("amount") != null && map.get("stripePub") != null && ((double) map.get("amount")) >= 0.5) {
+        if (card != null && map.get("body") != null && map.get("stripePub") != null) {
 
             Stripe stripe = new Stripe(this, (String) map.get("stripePub"));
             stripe.createToken(
@@ -79,14 +79,15 @@ public class PayStripe extends AppCompatActivity {
                             // client.addHeader("application/json", "Accept");
                             RequestParams params = new RequestParams();
                             params.put("tokenStripe", token.getId());
-                            params.put("amountStripe", (int) ((double) map.get("amount") * 100));
-                            params.put("currencyStripe", "usd");
-                            params.put("descStripe", (String) map.get("desc"));
+                            HashMap<String, Object> mapBody = (HashMap<String, Object>) map.get("body");
+                            Object[] keys = mapBody.keySet().toArray();
+                            for (Object key : keys) {
+                                params.put((String) key, mapBody.get(key));
+                            }
                             client.post((String) map.get("url"), params,
                                     new AsyncHttpResponseHandler() {
                                         @Override
                                         public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
                                             endTask(new String(responseBody));
                                         }
 

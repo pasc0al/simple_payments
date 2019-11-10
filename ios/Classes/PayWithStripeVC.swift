@@ -83,20 +83,18 @@ class PayStripeVC: UIViewController {
             // tell the Server-side ip to charge the card
             // print(token.tokenId)
             if let trMap = self.map {
-                self.requestPayment(url: trMap["url"] as! String, token: token.tokenId, amount: trMap["amount"] as! Double, currency: "usd", desc: trMap["desc"] as? String)
+                self.requestPayment(url: trMap["url"] as! String, token: token.tokenId, body: trMap["body"] as! [String : Any])
             }
         }
     }
     
-    func requestPayment(url: String, token: String, amount: Double, currency: String?, desc: String?) {
+    func requestPayment(url: String, token: String, body: [String : Any]) {
         //declare parameter as a dictionary which contains string as key and value combination. considering inputs are valid
 
         var parameters: [String : Any] = [:]
         parameters["tokenStripe"] = token
-        parameters["amountStripe"] = Int(amount * 100)
-        parameters["currencyStripe"] = "usd"
-        if let de = desc {
-            parameters["descStripe"] = de
+        for (key, value) in body {
+            parameters[key] = value
         }
 
         //create the url with URL
@@ -124,17 +122,27 @@ class PayStripeVC: UIViewController {
         let task = session.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
 
             guard error == nil else {
+                self.dialogMsg(msg: "Error: Unable to establish connection to server", title: "Error", message: "Oops. Something happened, try again later!")
                 return
             }
 
             guard let data = data else {
+                self.dialogMsg(msg: "Error: To get data from the server", title: "Error", message: "Oops. Something happened, try again later!")
                 return
             }
             
             if let jsonString = String(data: data, encoding: .utf8) {
-               print(jsonString)
                 DispatchQueue.main.async {
-                    self.dialogMsg(msg: jsonString, title: "Payment", message: "Success")
+                    if let httpResponse = response as? HTTPURLResponse {
+                        if httpResponse.statusCode >= 400 {
+                            self.dialogMsg(msg: "Error: \(jsonString)", title: "Error", message: "Oops. Something happened, try again later!")
+                        } else {
+                            self.dialogMsg(msg: jsonString, title: "Payment", message: "Success")
+                        }
+                    } else {
+                        self.dialogMsg(msg: "Error: \(jsonString)", title: "Error", message: "Oops. Something happened, try again later!")
+                    }
+                    
                 }
               // self.dialogMsg()
             } else {
