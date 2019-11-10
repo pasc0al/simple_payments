@@ -24,7 +24,7 @@ void main() {
 
 _payEasy() async {
   try {
-    var response = await SimplePayments.payWithStripe(map: {"amount": 10.0, "desc": "Some description optional", "url": "The API for Stripe charges", "stripePub": "The Pub key of Stripe"});
+    var response = await SimplePayments.payWithStripe(map: {"body": {"amount": 10.0, "desc": "Some description optional", "more": "data to pass"}, "url": "The API for Stripe charges", "stripePub": "The Pub key of Stripe"});
   } on TimeoutException {
     print("Timeout");
   } on DeferredLoadException {
@@ -34,9 +34,7 @@ _payEasy() async {
 ```
 ### Notes
 Your API should expect to receive the following in the POST body:
-* tokenStripe
-* amountStripe (in the native side, this value multiples with 100)
-* currencyStripe (by default is usd)
-* descStripe (optional)
+* tokenStripe;
+* Your data that is in the **body** map (you can also add more) shown in the example above.
 
 Also this plugin is using [Stripe](https://stripe.com/docs/charges) for payments, in the near future will have PayPal, M-Pesa, etc.
